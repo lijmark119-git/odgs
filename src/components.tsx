@@ -8,7 +8,7 @@ import { siteConfig } from './siteConfig'
 type Props = { lang: Language; setLang: (lang: Language) => void }
 
 export function Logo({ lang = 'en' }: { lang?: Language }) {
-  return <Link aria-label={`ORBITAL DIGITAL SOLUTION — ${copy[lang].nav.home}`} className="brand" to="/"><span className="brand-mark"><Orbit size={24} strokeWidth={1.7} aria-hidden="true" /></span><span className="brand-type"><strong>ORBITAL</strong><small>DIGITAL SOLUTION</small></span></Link>
+  return <Link aria-label={`ORBITAL DIGITAL SOLUTION — ${copy[lang].nav.home}`} className="brand" to="/"><img className="brand-logo" src="/images/orbital-logo.jpg" alt="" /><span className="brand-type"><strong>ORBITAL</strong><small>DIGITAL SOLUTION</small></span></Link>
 }
 
 export function Header({ lang, setLang }: Props) {
@@ -72,7 +72,14 @@ const pageArtwork: Record<string, { theme: number; image: string }> = {
 }
 
 export function HeroIllustration() {
-  return <div className="hero-illustration" role="img" aria-label="Digital technology and software"><img src="/images/home-circuit.jpg" alt="" /><span className="hero-photo-shade" aria-hidden="true" /><div className="hero-photo-panel" aria-hidden="true"><span className="hero-photo-panel-dot" /><span className="hero-photo-panel-dot" /><span className="hero-photo-panel-dot" /><div className="hero-photo-panel-mark" /><i /><i /><i /><b /></div><div className="hero-photo-caption"><span className="page-art-pulse" />DIGITAL INNOVATION</div></div>
+  return <div className="hero-illustration" role="img" aria-label="Digital technology, web design, and business software">
+    <img className="hero-background-image" src="/images/home-circuit.jpg" alt="" />
+    <span className="hero-photo-shade" aria-hidden="true" />
+    <figure className="hero-float-card hero-float-card-web" aria-hidden="true"><img src="/images/web-development.jpg" alt="" /><figcaption>WEB EXPERIENCES</figcaption></figure>
+    <figure className="hero-float-card hero-float-card-pos" aria-hidden="true"><img src="/images/orbital-pos.jpg" alt="" /><figcaption>BUSINESS IN ORBIT</figcaption></figure>
+    <div className="hero-photo-panel" aria-hidden="true"><span className="hero-photo-panel-dot" /><span className="hero-photo-panel-dot" /><span className="hero-photo-panel-dot" /><div className="hero-photo-panel-mark" /><i /><i /><i /><b /></div>
+    <div className="hero-photo-caption"><span className="page-art-pulse" />DIGITAL INNOVATION</div>
+  </div>
 }
 
 export function SectionHeading({ eyebrow, title, text, centered = false }: { eyebrow: string; title: string; text?: string; centered?: boolean }) {
@@ -126,28 +133,22 @@ export function CtaBanner({ lang }: { lang: Language }) {
 export function ContactForm({ lang }: { lang: Language }) {
   const c = copy[lang]
   const t = c.pages.contact
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error' | 'unconfigured'>('idle')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = event.currentTarget
     const data = new FormData(form)
     if (String(data.get('website') ?? '').trim()) return
-    if (!siteConfig.contactEndpoint) {
-      setStatus('unconfigured')
-      return
-    }
     setStatus('loading')
     try {
-      const response = await fetch(siteConfig.contactEndpoint, {
+      const payload = new URLSearchParams()
+      for (const [key, value] of data.entries()) payload.append(key, String(value))
+      const response = await fetch('/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(Object.fromEntries(data.entries())),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload.toString(),
       })
-      if (!response.ok) throw new Error(`Contact endpoint returned ${response.status}`)
-      const result: unknown = await response.json()
-      if (typeof result !== 'object' || result === null || !('received' in result) || result.received !== true) {
-        throw new Error('Contact endpoint did not confirm receipt')
-      }
+      if (!response.ok) throw new Error(`Contact form returned ${response.status}`)
       form.reset()
       setStatus('success')
     } catch (error) {
@@ -155,7 +156,7 @@ export function ContactForm({ lang }: { lang: Language }) {
       setStatus('error')
     }
   }
-  return <form className="contact-form" onSubmit={onSubmit}><h2>{t.formTitle}</h2>
+  return <form className="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="website" onSubmit={onSubmit}><input type="hidden" name="form-name" value="contact" /><h2>{t.formTitle}</h2>
     <label>{t.name}<input name="name" autoComplete="name" required maxLength={100} minLength={2} placeholder={lang === 'en' ? 'e.g. Alex Morgan' : 'ለምሳሌ አለም'} /></label>
     <label>{t.email}<input name="email" type="email" autoComplete="email" required maxLength={254} placeholder="you@company.com" /></label>
     <label>{t.phone}<input name="phone" type="tel" autoComplete="tel" required maxLength={40} onChange={event => { const digits = event.currentTarget.value.replace(/\D/g, ''); event.currentTarget.setCustomValidity(event.currentTarget.value && digits.length < 7 ? (lang === 'en' ? 'Enter at least 7 phone digits.' : 'ቢያንስ 7 የስልክ ቁጥሮችን ያስገቡ።') : '') }} placeholder="+251 ..." /></label>

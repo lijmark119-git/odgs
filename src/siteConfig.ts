@@ -2,7 +2,6 @@ const siteUrl = (import.meta.env.VITE_SITE_URL || 'https://orbitaldigitalsolutio
 
 export const siteConfig = {
   siteUrl,
-  contactEndpoint: import.meta.env.VITE_CONTACT_API_URL || '',
   company: {
     name: 'ORBITAL DIGITAL SOLUTION',
     location: 'Addis Ababa, Ethiopia',
@@ -15,10 +14,12 @@ export const siteConfig = {
     whatsapp: '',
     officeAddress: '',
     social: {
-      facebook: '',
-      telegram: '',
+      facebook: 'https://facebook.com/orbitdigitalsolutions.et',
+      telegram: 'https://t.me/Orbitdigitalsolutions',
+      instagram: 'https://www.instagram.com/orbitdigitalsolutions_et',
       linkedIn: '',
-      youTube: '',
+      youTube: 'https://youtube.com/@orbitdigitalsolutions_Et',
+      tikTok: 'https://tiktok.com/@orbitdigitalsolutions',
     },
   },
 }
